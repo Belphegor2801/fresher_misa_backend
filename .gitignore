@@ -1,0 +1,15 @@
+.vs
+/HCSN.MF1759.Application/bin
+/HCSN.MF1759.Application/obj
+/HCSN.MF1759.Application.UnitTests/bin
+/HCSN.MF1759.Application.UnitTests/obj
+/HCSN.MF1759.Domain/bin
+/HCSN.MF1759.Domain/obj
+/HCSN.MF1759.Domain.UnitTests/bin
+/HCSN.MF1759.Domain.UnitTests/obj
+/HCSN.MF1759.Infrastructure/bin
+/HCSN.MF1759.Infrastructure/obj
+/HCSN.MF1759.Web/bin
+/HCSN.MF1759.Web/obj
+/HCSN.MF1759.Web.UnitTests/bin
+/HCSN.MF1759.Web.UnitTests/obj
