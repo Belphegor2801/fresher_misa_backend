@@ -18,7 +18,7 @@ namespace HCSN.MF1759.Domain
         /// <param name="itemCode">Các thành phần của mã</param>
         /// <returns>Mã</returns>
         /// Created by: nxhinh (30/09/2023)
-        public static string NewCode(IEnumerable<string> codes)
+        public static string NewCode(IEnumerable<string> codes, String default_prefix = "")
         {
             var code = "";
 
@@ -38,6 +38,10 @@ namespace HCSN.MF1759.Domain
                 prefix = firstTtemcode.prefix;
                 suffix = firstTtemcode.suffix;
                 length = firstTtemcode.value_length;
+            }
+            else
+            {
+                return default_prefix + "0001";
             }
 
             var baseValueList = new List<int>();

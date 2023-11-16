@@ -20,11 +20,13 @@ namespace HCSN.MF1759.Domain
 
         private IFixedAssetManager _fixedAssetManager;
 
+        private ITransferDocumentRepository _transferDocumentRepository;
+
         [SetUp]
         public void SetUp()
         {
             _fixedAssetRepository = Substitute.For<IFixedAssetRepository>();
-            _fixedAssetManager = new FixedAssetManager(_fixedAssetRepository);
+            _fixedAssetManager = new FixedAssetManager(_fixedAssetRepository, _transferDocumentRepository);
         }
 
         /// <summary>

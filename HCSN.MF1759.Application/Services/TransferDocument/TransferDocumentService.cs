@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using HCSN.MF1759.Domain;
+using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace HCSN.MF1759.Application
 {
     /// <summary>
-    /// Service của tài sản
+    /// Service của chứng từ
     /// </summary>
     /// Created by: nxhinh (25/10/2023) 
     public class TransferDocumentService : BaseService<TransferDocument, TransferDocumentDto, TransferDocumentCreateDto, TransferDocumentUpdateDto>, ITransferDocumentService
@@ -13,6 +15,7 @@ namespace HCSN.MF1759.Application
         private readonly ITransferDocumentManager _transferDocumentManager;
         private readonly ITransferDocumentDetailsRepository _transferDocumentDetailsRepository;
         private readonly ITransferDocumentDetailsManager _transferDocumentDetailsManager;
+        private readonly IRecipientRepository _recipientRepository;
         private readonly IMapper _mapper;
 
         public TransferDocumentService(
@@ -20,6 +23,7 @@ namespace HCSN.MF1759.Application
             ITransferDocumentManager transferDocumentManager,
             ITransferDocumentDetailsRepository transferDocumentDetailsRepository,
             ITransferDocumentDetailsManager transferDocumentDetailsManager,
+            IRecipientRepository recipientRepository,
             IMapper mapper, 
             IUnitOfWork unitOfWork) : base(transferDocumentRepository, mapper, unitOfWork)
         {
@@ -27,6 +31,7 @@ namespace HCSN.MF1759.Application
             _transferDocumentManager = transferDocumentManager;
             _transferDocumentDetailsRepository = transferDocumentDetailsRepository;
             _transferDocumentDetailsManager = transferDocumentDetailsManager;
+            _recipientRepository = recipientRepository;
             _mapper = mapper;
         }
 
@@ -37,6 +42,7 @@ namespace HCSN.MF1759.Application
         /// Author: nxhinh (25/10/2023) 
         public virtual async Task<IEnumerable<TransferDocumentDetailsDto>> GetDetails(Guid document_id, FilterObject? filterObject)
         {
+            filterObject.Limit = 0;
             var details = await _transferDocumentRepository.GetDetails(document_id, filterObject);
 
             var detailsDtos = _mapper.Map<IEnumerable<TransferDocumentDetailsDto>>(details);
@@ -104,6 +110,37 @@ namespace HCSN.MF1759.Application
 
 
         /// <summary>
+        /// Tìm danh sách chứng từ của tài sản
+        /// </summary>
+        /// <param name="fixed_asset_id">id tài sản</param>
+        /// <returns></returns>
+        /// Author: nxhinh (08/11/2023)  
+        public async Task<IEnumerable<TransferDocumentDto>> GetListByFixedAssetId(Guid fixed_asset_id)
+        {
+            var entities = await _transferDocumentRepository.GetListByFixedAssetId(fixed_asset_id);
+
+            var entitieDtos = _mapper.Map<IEnumerable<TransferDocumentDto>>(entities);
+
+            return entitieDtos;
+        }
+
+        /// <summary>
+        /// Tìm danh sách chứng từ của tài sản sau thời gian chỉ định
+        /// </summary>
+        /// <param name="fixed_asset_id">id tài sản</param>
+        /// <param name="date">thời gian</param>
+        /// <returns></returns>
+        /// Author: nxhinh (08/11/2023)  
+        public async Task<IEnumerable<TransferDocumentDto>> GetListByFixedAssetIdAfterDate(Guid fixed_asset_id, DateTime date)
+        {
+            var entities = await _transferDocumentRepository.GetListByFixedAssetIdAfterDate(fixed_asset_id, date);
+
+            var entitieDtos = _mapper.Map<IEnumerable<TransferDocumentDto>>(entities);
+
+            return entitieDtos;
+        }
+
+        /// <summary>
         /// Tạo bản ghi
         /// </summary>
         /// <param name="documentCreateDto">Bản ghi tạo</param>
@@ -115,6 +152,8 @@ namespace HCSN.MF1759.Application
             var document = await MapCreateDtoToEntity(documentCreateDto);
 
             var documentDetailsItems = _mapper.Map<List<TransferDocumentDetails>>(documentCreateDto.fixed_asset_list);
+
+            var recipientItems = _mapper.Map<List<Recipient>>(documentCreateDto.recipients);
 
             if (document is BaseAuditableEntity baseAuditEntity)
             {
@@ -135,6 +174,12 @@ namespace HCSN.MF1759.Application
                 await _transferDocumentDetailsManager.ValidateData(document, item);
             }
 
+            foreach (var item in recipientItems)
+            {
+                item.recipient_id = Guid.NewGuid();
+                item.document_id = document.document_id;
+            }
+
 
             // Mở transaction
             await _unitOfWork.BeginTransactionAsync();
@@ -144,7 +189,10 @@ namespace HCSN.MF1759.Application
                 // Thực hiện thêm bản ghi
                 await _transferDocumentRepository.InsertAsync(document);
 
+                // Thêm details
                 await _transferDocumentDetailsRepository.InsertMultiAsync(documentDetailsItems);
+
+                await _recipientRepository.InsertMultiAsync(recipientItems);
 
                 await _unitOfWork.CommitAsync();
             }
@@ -166,13 +214,98 @@ namespace HCSN.MF1759.Application
         {
             var document = await MapUpdateDtoToEntity(documentUpdateDto);
 
+            var filterObject = new FilterObject();
+            filterObject.Limit = -1;
+            // Danh sách tài sản bản đầu
+            var documentDetails = await _transferDocumentRepository.GetDetails(document.document_id, filterObject);
+
+            // Danh sách tài sản nhận được
+            var documentDetailsUpdate = _mapper.Map<IEnumerable<TransferDocumentDetails>>(documentUpdateDto.fixed_asset_list);
+
+            // Danh sách các tài sản nhận được so với dang sách ban đầu
+            var documentDetailsToEdit = new List<TransferDocumentDetails>();
+            var documentDetailsToAdd = new List<TransferDocumentDetails>();
+            var documentDetailsToDelete = new List<TransferDocumentDetails>();
+
+            // Danh sách thông tin giao nhận ban đầu
+            var recipients = await _recipientRepository.GetListByDocumentId(document.document_id);
+            // Danh sách thông tin giao nhận nhận được
+            var recipientUpdate = _mapper.Map<IEnumerable<Recipient>>(documentUpdateDto.recipients);
+            foreach (var item in recipientUpdate)
+            {
+                item.recipient_id = Guid.NewGuid();
+                item.document_id = document.document_id;
+            }
+
+            foreach (var item in documentDetailsUpdate)
+            {
+               if (!documentDetails.Select(x => x.fixed_asset_id).Contains(item.fixed_asset_id))
+                {
+                    documentDetailsToAdd.Add(item);
+                }
+                else
+                {
+                    documentDetailsToEdit.Add(item);
+                }
+            }
+
+            foreach (var item in documentDetails)
+            {
+                if (!documentDetailsUpdate.Select(x => x.fixed_asset_id).Contains(item.fixed_asset_id))
+                {
+                    documentDetailsToDelete.Add(item);
+                }
+                
+            }
+
             if (document is BaseAuditableEntity baseAuditEntity)
             {
                 baseAuditEntity.modified_date = DateTime.Now;
                 baseAuditEntity.modified_by = "";
             }
 
-            await _transferDocumentRepository.UpdateAsync(document);
+            // Kiểm tra dữ liệu
+            
+            await _transferDocumentManager.ValidateData(document);
+
+            foreach (var item in documentDetailsToAdd)
+            {
+                item.document_details_id = Guid.NewGuid();
+                item.document_id = document.document_id;
+
+                await _transferDocumentDetailsManager.ValidateData(document, item);
+            }
+
+            // Mở transaction
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                // Thực hiện sửa bản ghi
+                await _transferDocumentRepository.UpdateAsync(document);
+
+                // Sửa tài sản
+                await _transferDocumentDetailsRepository.UpdateMultiAsync(documentDetailsToEdit);
+
+                // Xóa tài sản
+                await _transferDocumentDetailsRepository.DeleteMultiAsync(documentDetailsToDelete);
+
+                // Thêm tài sản mới
+                await _transferDocumentDetailsRepository.InsertMultiAsync(documentDetailsToAdd);
+
+                // Xóa recipient
+                await _recipientRepository.DeleteMultiAsync(recipients);
+
+                // Thêm mới recipient
+                await _recipientRepository.InsertMultiAsync(recipientUpdate);
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollBackAsync();
+                throw;
+            }
         }
 
 

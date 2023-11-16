@@ -6,7 +6,7 @@ namespace HCSN.MF1759.Application
     /// <summary>
     /// Service của tài sản
     /// </summary>
-    /// Created by: nxhinh (11/09/2023) 
+    /// Created by: nxhinh (25/10/2023)
     public class TransferDocumentDetailsService : BaseService<TransferDocumentDetails, TransferDocumentDetailsDto, TransferDocumentDetailsCreateDto, TransferDocumentDetailsUpdateDto>, ITransferDocumentDetailsService
     {
         private readonly ITransferDocumentDetailsRepository _transferDocumentDetailsRepository;
@@ -46,7 +46,7 @@ namespace HCSN.MF1759.Application
         /// </summary>
         /// <param name="transferDocumentDetailsCreateDto">TransferDocumentDetailsCreateDto</param>
         /// <returns>TransferDocumentDetails</returns>
-        /// Author: nxhinh (11/09/2023)  
+        /// Author: nxhinh (25/10/2023) 
         public async override Task<TransferDocumentDetails> MapCreateDtoToEntity(TransferDocumentDetailsCreateDto transferDocumentDetailsCreateDto)
         {
             var transferDocumentDetails = _mapper.Map<TransferDocumentDetails>(transferDocumentDetailsCreateDto);
@@ -78,7 +78,7 @@ namespace HCSN.MF1759.Application
         /// </summary>
         /// <param name="entityUpdateDto">TransferDocumentDetailsUpdateDto</param>
         /// <returns>TransferDocumentDetails</returns>
-        /// Author: nxhinh (11/09/2023)  
+        /// Author: nxhinh (25/10/2023) 
         public async override Task<TransferDocumentDetails> MapUpdateDtoToEntity(TransferDocumentDetailsUpdateDto transferDocumentDetailsUpdateDto)
         {
             var transferDocumentDetails = _mapper.Map<TransferDocumentDetails>(transferDocumentDetailsUpdateDto);
@@ -95,7 +95,7 @@ namespace HCSN.MF1759.Application
         /// </summary>
         /// <param name="transferDocumentDetailsDtosList">Danh sách bản ghi</param>
         /// <returns></returns>
-        /// Author: nxhinh (11/09/2023)  
+        /// Author: nxhinh (25/10/2023) 
         public async Task InsertMultiAsync(IEnumerable<TransferDocumentDetailsCreateDto> transferDocumentDetailsDtosList)
         {
             
@@ -106,7 +106,7 @@ namespace HCSN.MF1759.Application
         /// </summary>
         /// <param name="transferDocumentDetailsUpdateDtosList">Danh sách bản ghi</param>
         /// <returns></returns>
-        /// Author: nxhinh (11/09/2023)  
+        /// Author: nxhinh (25/10/2023) 
         public async Task UpdateMultiAsync(IEnumerable<TransferDocumentDetailsUpdateDto> transferDocumentDetailsUpdateDtosList)
         {
          

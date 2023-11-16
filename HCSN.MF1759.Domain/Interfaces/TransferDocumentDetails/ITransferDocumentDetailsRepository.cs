@@ -13,6 +13,15 @@ namespace HCSN.MF1759.Domain
     public interface ITransferDocumentDetailsRepository: IBaseRepository<TransferDocumentDetails>
     {
         /// <summary>
+        /// Lấy danh sách tài sản điều chuyển trong chứng từ
+        /// </summary>
+        /// <param name="document_id">id chứng từ</param>
+        /// <param name="filterObject">filter</param>
+        /// <returns></returns>
+        /// Author: nxhinh (25/10/2023)  
+        Task<IEnumerable<TransferDocumentDetails>> GetListByDocumentId(Guid document_id, FilterObject? filterObject);
+
+        /// <summary>
         /// Lấy tổng số bản ghi theo Id chứng từ
         /// </summary>
         /// <param name="document_id">id chứng từ</param>

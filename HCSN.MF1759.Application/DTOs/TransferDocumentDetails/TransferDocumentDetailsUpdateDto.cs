@@ -16,7 +16,12 @@ namespace HCSN.MF1759.Application
         /// <summary>
         /// Id chi tiết chứng từ
         /// </summary>
-        ///public Guid document_details_id { get; set; }
+        public Guid document_details_id { get; set; }
+
+        /// <summary>
+        /// Id chứng từ
+        /// </summary>
+        public Guid document_id { get; set; }
 
         /// <summary>
         /// Id tài sản

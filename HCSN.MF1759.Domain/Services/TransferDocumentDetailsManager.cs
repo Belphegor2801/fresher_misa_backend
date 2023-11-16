@@ -44,11 +44,17 @@ namespace HCSN.MF1759.Domain
         /// Author: nxhinh (30/10/2023)  
         public async Task ValidateDelete(TransferDocument transferDocument, TransferDocumentDetails transferDocumentDetails)
         {
-            var lastTransferDate = await GetLastTransferDateOfAsset(transferDocumentDetails.fixed_asset_id);
+            var entities = await _transferDocumentRepository.GetListByFixedAssetId(transferDocumentDetails.fixed_asset_id);
 
-            if (DateTime.Compare(lastTransferDate, transferDocument.transfer_date) > 0)
+            if (entities != null)
             {
-                throw new InvalidDataException(ResourceVN.ErrorDelete_TransferDateError);
+                foreach (var entity in entities)
+                {
+                    if (DateTime.Compare(entity.transfer_date, transferDocument.transfer_date) > 0)
+                    {
+                        throw new InvalidDataException(ResourceVN.ErrorDelete_TransferDateError.Replace("{code}", entity.document_code).Replace("{date}", entity.transfer_date.ToString("dd/MM/yyyy")));
+                    } 
+                }
             }
         }
 
@@ -60,20 +66,14 @@ namespace HCSN.MF1759.Domain
         /// Author: nxhinh (30/10/2023)  
         private async Task<DateTime> GetLastTransferDateOfAsset(Guid fixed_asset_id)
         {
-            var entities = await _transferDocumentDetailsRepository.GetListByFixedAssetId(fixed_asset_id);
+            var entities = await _transferDocumentRepository.GetListByFixedAssetId(fixed_asset_id);
 
             var transferDate = DateTime.MinValue;
             if (entities != null)
             {
                 foreach (var entity in entities)
                 {
-                    //if (entity.department_after_name == entity.department_before_name)
-                    //{
-                    //    throw new InvalidDataException(ResourceVN.Error_DuplicateDepartmentBeforeAndAfter);
-                    //}
-
-                    var document = await _transferDocumentRepository.GetAsync(entity.document_id);
-                    transferDate = DateTime.Compare(document.transfer_date, transferDate) > 0 ? document.transfer_date : transferDate;
+                    transferDate = DateTime.Compare(entity.transfer_date, transferDate) > 0 ? entity.transfer_date : transferDate;
                 }
             }
             return transferDate;

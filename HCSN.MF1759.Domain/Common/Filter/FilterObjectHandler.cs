@@ -79,6 +79,10 @@ namespace HCSN.MF1759.Domain
                     {
                         switch (filterItem.OperatorType)
                         {
+                            case "NOT":
+                                sql += $" {filterItem.Field} NOT IN ({filterItem.Value}) AND";
+                                sqlChange = true;
+                                break;
                             case "LIKE":
                                 sql += $" {filterItem.Field} LIKE '%{filterItem.Value}%' AND";
                                 sqlChange = true;

@@ -136,7 +136,8 @@ namespace HCSN.MF1759.Infrastructure
         /// Author: nxhinh (11/09/2023)  
         public async Task UpdateMultiAsync(IEnumerable<TEntity> entities)
         {
-            var properties = typeof(TEntity).GetProperties();
+            var properties = typeof(TEntity).GetProperties().Where(
+                prop => !Attribute.IsDefined(prop, typeof(OnlyForGetAttribute)));
 
             var set = string.Join(",", properties.Select(x => $"{x.Name} = @{x.Name}").ToList());
 
@@ -153,7 +154,7 @@ namespace HCSN.MF1759.Infrastructure
 
                 foreach (var property in properties)
                 {
-                    param.Add("$" + property.Name, property.GetValue(entity));
+                    param.Add(property.Name, property.GetValue(entity));
                 }
 
                 listParam.Add(param);

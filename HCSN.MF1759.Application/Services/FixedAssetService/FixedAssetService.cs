@@ -251,5 +251,59 @@ namespace HCSN.MF1759.Application
 
             await _fixedAssetRepository.UpdateMultiAsync(fixedAssets);
         }
+
+        /// <summary>
+        /// Xoá bản ghi
+        /// </summary>
+        /// <param name="id">Id bản ghi cần xoá</param>
+        /// <returns></returns>
+        /// Author: nxhinh (11/09/2023)  
+        public async override Task DeleteAsync(Guid id)
+        {
+            var entity = await _fixedAssetRepository.GetAsync(id);
+
+            await _fixedAssetManager.ValidateDelete(id);
+
+            await _fixedAssetRepository.DeleteAsync(entity);
+        }
+
+        /// <summary>
+        /// Xoá nhiều bản ghi
+        /// </summary>
+        /// <param name="ids">Danh sách id bản ghi cần xoá</param>
+        /// <returns></returns>
+        /// Author: nxhinh (11/09/2023)  
+        public async override Task DeleteMultiAsync(List<Guid> ids)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                if (ids.Count == 0)
+                {
+                    throw new Exception(ResourceVN.Error_NotEmptyList);
+                }
+
+                var entities = await _fixedAssetRepository.GetListByIdsAsync(ids);
+
+                if (entities.ToList().Count < ids.Count)
+                {
+                    throw new Exception(ResourceVN.Error_CannotDelete);
+                }
+
+                foreach ( var entity in entities)
+                {
+                    await _fixedAssetManager.ValidateDelete(entity.fixed_asset_id);
+                }
+
+                await _fixedAssetRepository.DeleteMultiAsync(entities);
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollBackAsync();
+                throw;
+            }
+        }
     }
 }

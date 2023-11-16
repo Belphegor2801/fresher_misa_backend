@@ -44,7 +44,7 @@ namespace HCSN.MF1759.Infrastructure.Repositories
             param.Add("$sort_field", filterObject?.SortField != null ? filterObject.SortField : $"modified_date");
             param.Add("$sort_type", filterObject?.SortType != null ? filterObject.SortType : "ASC");
             param.Add("$offset", filterObject?.Offset != 0 ? filterObject.Offset : 0);
-            param.Add("$limit", filterObject?.Limit != 0 ? filterObject.Limit : 20);
+            param.Add("$limit", filterObject?.Limit != 0 ? filterObject.Limit : 10000);
 
             var whereCondition = await FilterObjectHandler.CreateWhereCondition(filterObject);
 
@@ -57,7 +57,48 @@ namespace HCSN.MF1759.Infrastructure.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Tìm danh sách chứng từ của tài sản
+        /// </summary>
+        /// <param name="fixed_asset_id">id tài sản</param>
+        /// <returns></returns>
+        /// Author: nxhinh (08/11/2023)  
+        public async Task<IEnumerable<TransferDocument>> GetListByFixedAssetId(Guid fixed_asset_id)
+        {
+            var query = $"Proc_document_GetListByFixedAssetId";
 
-        
+            var param = new DynamicParameters();
+
+            param.Add("$fixed_asset_id", fixed_asset_id);
+
+            // await _unitOfWork.Connection.ExecuteAsync(query, param, transaction: _unitOfWork.Transaction);
+
+            var result = await _unitOfWork.Connection.QueryAsync<TransferDocument>(query, param, transaction: _unitOfWork.Transaction, commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Tìm danh sách chứng từ của tài sản sau thời gian chỉ định
+        /// </summary>
+        /// <param name="fixed_asset_id">id tài sản</param>
+        /// <param name="date">thời gian</param>
+        /// <returns></returns>
+        /// Author: nxhinh (08/11/2023)  
+        public async Task<IEnumerable<TransferDocument>> GetListByFixedAssetIdAfterDate(Guid fixed_asset_id, DateTime date)
+        {
+            var query = $"Proc_document_GetListByFixedAssetIdAfterDate";
+
+            var param = new DynamicParameters();
+
+            param.Add("$fixed_asset_id", fixed_asset_id);
+            param.Add("$date", date);
+
+            // await _unitOfWork.Connection.ExecuteAsync(query, param, transaction: _unitOfWork.Transaction);
+
+            var result = await _unitOfWork.Connection.QueryAsync<TransferDocument>(query, param, transaction: _unitOfWork.Transaction, commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
     }
 }

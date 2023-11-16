@@ -40,7 +40,7 @@
         /// <summary>
         /// Ghi chú
         /// </summary>
-        public string note { get; set; }
+        public string? note { get; set; }
 
         /// <summary>
         /// Lấy id chứng từ

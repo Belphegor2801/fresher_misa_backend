@@ -38,6 +38,21 @@ namespace HCSN.MF1759.Application
         public DateTime? document_date { get; set; }
 
         /// <summary>
+        /// Nguyên giá
+        /// </summary>
+        public decimal? cost { get; set; }
+
+        /// <summary>
+        /// Giá trị còn lại
+        /// </summary>
+        public decimal? remaining_value { get; set; }
+
+        /// <summary>
+        /// Năm bắt đầu theo dõi
+        /// </summary>
+        public int? tracked_year { get; set; }
+
+        /// <summary>
         /// Ghi chú
         /// </summary>
         public string note { get; set; }
@@ -46,5 +61,10 @@ namespace HCSN.MF1759.Application
         /// Danh sách tài sản điều chuyển
         /// </summary>
         public IEnumerable<TransferDocumentDetailsUpdateDto> fixed_asset_list { get; set; }
+
+        /// <summary>
+        /// Danh sách thông tin gian nhận
+        /// </summary>
+        public IEnumerable<RecipientUpdateDto>? recipients { get; set; }
     }
 }

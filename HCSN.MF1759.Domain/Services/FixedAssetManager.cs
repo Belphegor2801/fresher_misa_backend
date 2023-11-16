@@ -9,10 +9,12 @@ namespace HCSN.MF1759.Domain
     public class FixedAssetManager : IFixedAssetManager
     {
         private readonly IFixedAssetRepository _fixedAssetRepository;
+        private readonly ITransferDocumentRepository _transferdocumentRepository;
 
-        public FixedAssetManager(IFixedAssetRepository fixedAssetRepository)
+        public FixedAssetManager(IFixedAssetRepository fixedAssetRepository, ITransferDocumentRepository transferdocumentRepository)
         {
             _fixedAssetRepository = fixedAssetRepository;
+            _transferdocumentRepository = transferdocumentRepository;
         }
 
 
@@ -41,7 +43,6 @@ namespace HCSN.MF1759.Domain
             {
                 throw new InvalidDataException(ResourceVN.Error_DepreciationRateError);
             }
-
             var depreciationValueYearOdd = fixedAsset.depreciation_value_year - fixedAsset.cost * (decimal)(fixedAsset.depreciation_rate ?? 0) / 100;
 
             if (Math.Abs(depreciationValueYearOdd ?? 0) > 1000)
@@ -51,6 +52,26 @@ namespace HCSN.MF1759.Domain
 
             return Task.CompletedTask;
         }
+
+        /// <summary>
+        /// Validate dữ liệu tài sản khi xóa
+        /// </summary>
+        /// <param name="fixedAsset">Tài sản</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException">Exception lỗi dữ liệu</exception>
+        /// Author: nxhinh (11/11/2023) 
+        public async Task ValidateDelete(Guid fixed_asset_id)
+        {
+            var documentByFixedAssetId = await _transferdocumentRepository.GetListByFixedAssetId(fixed_asset_id);
+
+
+            if (documentByFixedAssetId != null)
+            {
+                var lastDocument = documentByFixedAssetId.First();
+                throw new InvalidDataException(ResourceVN.Error_FixedAssetDelete.Replace("{code}", lastDocument.document_code).Replace("{date}", lastDocument.transfer_date.ToString("dd/MM/yyyy")));
+            }
+        }
+
 
         /// <summary>
         /// Kiểm tra mã tài sản mới đã tồn tại chưa

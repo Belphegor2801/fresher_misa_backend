@@ -21,7 +21,7 @@ namespace HCSN.MF1759.Controllers
 
         /// <summary>
         /// Lấy tổng số tài sản được điều chuyển trong chứng từ
-        /// </summary>
+        /// </summary>l
         /// <param name="document_id">Id của chứng từ</param>
         /// <returns></returns>
         /// Author: nxhinh (25/10/2023)  

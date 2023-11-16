@@ -232,6 +232,16 @@ namespace HCSN.MF1759.Domain {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Không thể xóa tài sản do đã có chứng từ phát sinh
+        ///- Chứng từ điều chuyển {code} ({date}).
+        /// </summary>
+        public static string Error_FixedAssetDelete {
+            get {
+                return ResourceManager.GetString("Error_FixedAssetDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Tên tài sản không được để trống.
         /// </summary>
         public static string Error_FixedAssetNameNotEmpty {
@@ -331,7 +341,8 @@ namespace HCSN.MF1759.Domain {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Không thể xóa chứng từ do có chứng từ phát sinh phía sau..
+        ///   Looks up a localized string similar to Đã có chứng từ phát sinh phía sau. Bạn không thể xóa chứng từ này.
+        ///- Chứng từ điều chuyển {code} ({date}).
         /// </summary>
         public static string ErrorDelete_TransferDateError {
             get {

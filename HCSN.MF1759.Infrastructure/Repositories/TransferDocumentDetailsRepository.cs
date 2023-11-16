@@ -26,6 +26,38 @@ namespace HCSN.MF1759.Infrastructure.Repositories
         }
 
         /// <summary>
+        /// Lấy danh sách tài sản điều chuyển trong chứng từ
+        /// </summary>
+        /// <param name="document_id">id chứng từ</param>
+        /// <param name="filterObject">filter</param>
+        /// <returns></returns>
+        /// Author: nxhinh (25/10/2023)  
+        public async Task<IEnumerable<TransferDocumentDetails>> GetListByDocumentId(Guid document_id, FilterObject? filterObject)
+        {
+            var query = $"Proc_document_details_GetListByDocumentId";
+
+            var param = new DynamicParameters();
+
+            param.Add("$document_id", document_id);
+
+            param.Add("$columns", filterObject?.Columns != null ? filterObject.Columns : "*");
+            param.Add("$sort_field", filterObject?.SortField != null ? filterObject.SortField : $"modified_date");
+            param.Add("$sort_type", filterObject?.SortType != null ? filterObject.SortType : "ASC");
+            param.Add("$offset", filterObject?.Offset != 0 ? filterObject.Offset : 0);
+            param.Add("$limit", filterObject?.Limit != 0 ? filterObject.Limit : 20);
+
+            var whereCondition = await FilterObjectHandler.CreateWhereCondition(filterObject);
+
+            param.Add("$where_condition", whereCondition);
+
+            // await _unitOfWork.Connection.ExecuteAsync(query, param, transaction: _unitOfWork.Transaction);
+
+            var result = await _unitOfWork.Connection.QueryAsync<TransferDocumentDetails>(query, param, transaction: _unitOfWork.Transaction, commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+
+        /// <summary>
         /// Lấy tổng số bản ghi theo Id chứng từ
         /// </summary>
         /// <param name="document_id">id chứng từ</param>

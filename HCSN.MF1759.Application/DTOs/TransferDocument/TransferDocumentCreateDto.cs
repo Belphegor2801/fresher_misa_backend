@@ -57,5 +57,10 @@ namespace HCSN.MF1759.Application
         /// Danh sách tài sản điều chuyển
         /// </summary>
         public IEnumerable<TransferDocumentDetailsUpdateDto> fixed_asset_list { get; set; }
+
+        /// <summary>
+        /// Danh sách thông tin gian nhận
+        /// </summary>
+        public IEnumerable<RecipientUpdateDto>? recipients { get; set; }
     }
 }

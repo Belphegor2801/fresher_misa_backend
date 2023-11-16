@@ -63,6 +63,10 @@ builder.Services.AddScoped<ITransferDocumentDetailsManager, TransferDocumentDeta
 builder.Services.AddScoped<ITransferDocumentDetailsRepository, TransferDocumentDetailsRepository>();
 builder.Services.AddScoped<ITransferDocumentDetailsService, TransferDocumentDetailsService>();
 
+//Recipient
+builder.Services.AddScoped<IRecipientRepository, RecipientRepository>();
+builder.Services.AddScoped<IRecipientService, RecipientService>();
+
 
 var app = builder.Build();
 

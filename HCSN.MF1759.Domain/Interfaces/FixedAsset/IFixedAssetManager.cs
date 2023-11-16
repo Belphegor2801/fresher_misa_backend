@@ -15,6 +15,15 @@
         Task ValidateData(FixedAsset fixedAsset);
 
         /// <summary>
+        /// Validate dữ liệu tài sản khi xóa
+        /// </summary>
+        /// <param name="fixedAsset">Tài sản</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException">Exception lỗi dữ liệu</exception>
+        /// Author: nxhinh (11/11/2023) 
+        Task ValidateDelete(Guid fixed_asset_id);
+
+        /// <summary>
         /// Kiểm tra mã tài sản mới đã tồn tại chưa
         /// </summary>
         /// <param name="code">Mã tài sản</param>
